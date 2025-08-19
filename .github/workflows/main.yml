@@ -1,38 +1,29 @@
-name: Nexus Light Node
+name: Nexus CLI Build
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */6 * * *"   # auto restart tiap 6 jam
 
 jobs:
-  run-nexus:
+  build:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Debug environment
+    - name: Install dependencies
       run: |
-        echo "=== Environment Info ==="
-        uname -a
-        lsb_release -a || true
-        echo "HOME: $HOME"
-        echo "PATH: $PATH"
+        sudo apt-get update && sudo apt-get upgrade -y
+        sudo apt-get install build-essential pkg-config libssl-dev git-all protobuf-compiler -y
 
-    - name: Install Nexus CLI
+    - name: Install Rust
       run: |
-        echo "Y" | curl -L https://cli.nexus.xyz/ | sh
-        ls -lah $HOME/.nexus || true
-        ls -lah $HOME/.nexus/bin || true
-        echo "$HOME/.nexus/bin" >> $GITHUB_PATH
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: Test Nexus CLI
+    - name: Build Nexus CLI
       run: |
-        which nexus-network || echo "nexus-network not found"
-        nexus-network --help || echo "failed to run nexus-network"
-
-    - name: Run Nexus Light Node
-      run: |
-        nexus-network start --node-id 35143021
+        git clone https://github.com/nexus-xyz/nexus-cli.git
+        cd nexus-cli/clients/cli
+        cargo build --release
+        ls -lah target/release
