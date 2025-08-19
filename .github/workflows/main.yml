@@ -1,10 +1,9 @@
 name: Nexus Light Node
 
 on:
-  workflow_dispatch:   # bisa dijalankan manual
-  push:                # atau tiap kali ada commit baru
+  workflow_dispatch:
   schedule:
-    - cron: "0 */6 * * *"   # auto restart tiap 6 jam biar nggak mati
+    - cron: "0 */6 * * *"   # auto restart tiap 6 jam
 
 jobs:
   run-nexus:
@@ -16,9 +15,9 @@ jobs:
 
     - name: Install Nexus CLI
       run: |
-        curl https://cli.nexus.xyz/ | sh
-        echo "source ~/.bashrc" >> $GITHUB_ENV
+        curl -L https://cli.nexus.xyz/ | sh
+        sudo mv nexus-network /usr/local/bin/nexus-network
 
     - name: Run Nexus Light Node
       run: |
-        ./nexus-network start --node-id 35143021
+        nexus-network start --node-id 35143021
