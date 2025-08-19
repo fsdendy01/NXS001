@@ -1,33 +1,47 @@
-name: Nexus CLI Build & Run
+name: Nexus Node
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 */6 * * *"   # jalan tiap 6 jam
 
 jobs:
-  build:
+  nexus:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Install dependencies
+    - name: Update & Install dependencies
       run: |
-        sudo apt-get update && sudo apt-get upgrade -y
-        sudo apt-get install build-essential pkg-config libssl-dev git-all protobuf-compiler -y
+        sudo apt-get update -y
+        sudo apt-get upgrade -y
+        sudo apt-get install -y build-essential pkg-config libssl-dev git-all protobuf-compiler
 
     - name: Install Rust
       run: |
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
+    - name: Cache Cargo
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
     - name: Build Nexus CLI
       run: |
+        cd ~
         git clone https://github.com/nexus-xyz/nexus-cli.git
         cd nexus-cli/clients/cli
         cargo build --release
 
     - name: Run Nexus Node
       run: |
-        cd nexus-cli/clients/cli
+        cd ~/nexus-cli/clients/cli
         ./target/release/nexus-network start --node-id 35143021
