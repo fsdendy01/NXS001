@@ -13,10 +13,25 @@ jobs:
     - name: Checkout repo
       uses: actions/checkout@v3
 
+    - name: Debug environment
+      run: |
+        echo "=== Environment Info ==="
+        uname -a
+        lsb_release -a || true
+        echo "HOME: $HOME"
+        echo "PATH: $PATH"
+
     - name: Install Nexus CLI
       run: |
         echo "Y" | curl -L https://cli.nexus.xyz/ | sh
+        ls -lah $HOME/.nexus || true
+        ls -lah $HOME/.nexus/bin || true
         echo "$HOME/.nexus/bin" >> $GITHUB_PATH
+
+    - name: Test Nexus CLI
+      run: |
+        which nexus-network || echo "nexus-network not found"
+        nexus-network --help || echo "failed to run nexus-network"
 
     - name: Run Nexus Light Node
       run: |
