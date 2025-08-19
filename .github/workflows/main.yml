@@ -1,4 +1,4 @@
-name: Nexus CLI Build
+name: Nexus CLI Build & Run
 
 on:
   workflow_dispatch:
@@ -26,4 +26,8 @@ jobs:
         git clone https://github.com/nexus-xyz/nexus-cli.git
         cd nexus-cli/clients/cli
         cargo build --release
-        ls -lah target/release
+
+    - name: Run Nexus Node
+      run: |
+        cd nexus-cli/clients/cli
+        ./target/release/nexus-network start --node-id 35143021
