@@ -15,8 +15,8 @@ jobs:
 
     - name: Install Nexus CLI
       run: |
-        curl -L https://cli.nexus.xyz/ | sh
-        sudo mv nexus-network /usr/local/bin/nexus-network
+        echo "Y" | curl -L https://cli.nexus.xyz/ | sh
+        echo "$HOME/.nexus/bin" >> $GITHUB_PATH
 
     - name: Run Nexus Light Node
       run: |
